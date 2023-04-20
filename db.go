@@ -27,8 +27,7 @@ func NewSQLModel(db *sql.DB) (*SQLModel, error) {
 	model := &SQLModel{db, rnd}
 	_, err := model.db.Exec(`
 		CREATE TABLE IF NOT EXISTS tokens (
-			id VARCHAR(12) NOT NULL PRIMARY KEY,
-			value VARCHAR(100) NOT NULL,
+			id VARCHAR(20) NOT NULL PRIMARY KEY,
 			name VARCHAR(255) NOT NULL,
       interval INTEGER,
       -- to disable the token temporarely
@@ -54,4 +53,25 @@ func NewSQLModel(db *sql.DB) (*SQLModel, error) {
 
 func (m *SQLModel) FooBar() error {
 	return nil
+}
+
+// Create a token and return the id which identifies the token uniquely
+func (m *SQLModel) CreateToken(name string, interval int) (string, error) {
+	id := m.makeTokenID(20)
+	// Generate time here because SQLite's CURRENT_TIMESTAMP only returns seconds.
+	timeCreated := time.Now().In(time.UTC).Format(time.RFC3339Nano)
+	_, err := m.db.Exec("INSERT INTO tokens (id, name, interval, time_created) VALUES (?, ?, ?, ?)",
+		id, name, interval, timeCreated)
+	return id, err
+}
+
+var listIDChars = "bcdfghjklmnpqrstvwxyz"
+
+func (m *SQLModel) makeTokenID(n int) string {
+	id := make([]byte, n)
+	for i := 0; i < n; i++ {
+		index := m.rnd.Intn(len(listIDChars))
+		id[i] = listIDChars[index]
+	}
+	return string(id)
 }
