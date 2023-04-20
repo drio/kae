@@ -5,7 +5,7 @@
 - [x] table token
 - [x] table ping
 - [x] change project name
-- [ ] endpoint /new-token
+- [x] endpoint /newtoken
 - [ ] GET endpoint /hb/<token>: update token ping store the value (get post?) and update db
 - [ ] background job to every minute check of heart beats
 - [ ] production deployment
