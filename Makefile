@@ -1,6 +1,6 @@
 PROD_SERVER:=bubbles
 HOST?=$(shell hostname)
-PRJ_NAME=lsnitch
+PRJ_NAME=kae
 
 ifeq ($(HOST), bubbles)
 include .env.prod
