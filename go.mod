@@ -1,4 +1,4 @@
-module github.com/drio/lsnitch
+module github.com/drio/kea
 
 go 1.20
 
