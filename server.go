@@ -12,7 +12,7 @@ import (
 )
 
 type Server struct {
-	model  SQLModel
+	model  Model
 	logger Logger
 
 	mux      *chi.Mux
@@ -20,16 +20,12 @@ type Server struct {
 	//listTmpl *template.Template
 }
 
-type Model interface {
-	FooBar() error
-}
-
 type Logger interface {
 	Printf(format string, v ...interface{})
 }
 
 func NewServer(
-	model SQLModel,
+	model Model,
 	logger Logger,
 ) (*Server, error) {
 	r := chi.NewRouter()
@@ -87,30 +83,25 @@ func (s *Server) addTemplates() {
 }
 
 func (s *Server) home(w http.ResponseWriter, r *http.Request) {
-	list := List{
-		&Token{
-			"1",
-			"foo",
-			false,
-			300,
-			false,
-			false,
-		},
+	list, err := s.model.GetTokens()
+	if err != nil {
+		s.internalError(w, "rendering home template", err)
+		return
 	}
 
 	var data = struct {
-		Name       string
-		SayHi      bool
-		ListTokens List
+		Name   string
+		SayHi  bool
+		Tokens ListTokens
 	}{
-		Name:       "david",
-		SayHi:      true,
-		ListTokens: list,
+		Name:   "david",
+		SayHi:  false,
+		Tokens: list,
 	}
 
-	err := s.homeTmpl.Execute(w, data)
+	err = s.homeTmpl.Execute(w, data)
 	if err != nil {
-		s.internalError(w, "rendering template", err)
+		s.internalError(w, "rendering home template", err)
 		return
 	}
 }

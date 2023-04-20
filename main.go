@@ -18,7 +18,7 @@ func main() {
 	exitOnError(err)
 	model, err := NewSQLModel(db)
 	exitOnError(err)
-	server, err := NewServer(*model, log.Default())
+	server, err := NewServer(model, log.Default())
 	exitOnError(err)
 
 	log.Printf("listening on http://localhost:%d", port)

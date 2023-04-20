@@ -11,15 +11,21 @@ type SQLModel struct {
 	rnd *rand.Rand
 }
 
-type List []*Token
+type Model interface {
+	CreateToken(string, int) (string, error)
+	GetTokens() (ListTokens, error)
+}
+
+type ListTokens []*Token
 
 type Token struct {
-	ID       string
-	Name     string
-	Value    bool
-	Interval int
-	Disabled bool
-	Fired    bool
+	ID          string
+	Name        string
+	Value       bool
+	Interval    int
+	Disabled    bool
+	Fired       bool
+	TimeCreated time.Time
 }
 
 func NewSQLModel(db *sql.DB) (*SQLModel, error) {
@@ -51,10 +57,6 @@ func NewSQLModel(db *sql.DB) (*SQLModel, error) {
 	return model, err
 }
 
-func (m *SQLModel) FooBar() error {
-	return nil
-}
-
 // Create a token and return the id which identifies the token uniquely
 func (m *SQLModel) CreateToken(name string, interval int) (string, error) {
 	id := m.makeTokenID(20)
@@ -63,6 +65,30 @@ func (m *SQLModel) CreateToken(name string, interval int) (string, error) {
 	_, err := m.db.Exec("INSERT INTO tokens (id, name, interval, time_created) VALUES (?, ?, ?, ?)",
 		id, name, interval, timeCreated)
 	return id, err
+}
+
+// GetLists fetches all the tokens  ordered with the most recent first.
+func (m *SQLModel) GetTokens() (ListTokens, error) {
+	rows, err := m.db.Query(`
+		SELECT id, name, interval, time_created
+		FROM tokens
+		ORDER BY time_created DESC
+		`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var listTokens ListTokens
+	for rows.Next() {
+		var t Token
+		err = rows.Scan(&t.ID, &t.Name, &t.Interval, &t.TimeCreated)
+		if err != nil {
+			return nil, err
+		}
+		listTokens = append(listTokens, &t)
+	}
+	return listTokens, rows.Err()
 }
 
 var listIDChars = "bcdfghjklmnpqrstvwxyz"
