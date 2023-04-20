@@ -11,6 +11,17 @@ type SQLModel struct {
 	rnd *rand.Rand
 }
 
+type List []*Token
+
+type Token struct {
+	ID       string
+	Name     string
+	Value    bool
+	Interval int
+	Disabled bool
+	Fired    bool
+}
+
 func NewSQLModel(db *sql.DB) (*SQLModel, error) {
 	rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
 	model := &SQLModel{db, rnd}
