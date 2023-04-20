@@ -20,10 +20,15 @@ var homeTmpl = `<!DOCTYPE html>
 </form>
 
 <h3>List of tokens</h3>
-<ul style="">
+<ul style="list-style: none;">
   {{ range .Tokens }}
-  <li style="margin: 0.7em 0">
-   <a href="/lists/{{ .ID }}">{{ .Name }}</a> {{.ID}} {{.Interval}} delete
+  <li style="margin: 0.7em 0; {{if .Disabled}} color: silver{{end}}">
+  <span style="font-weight: 800">{{ .Name }}</span> 
+   {{.ID}} 
+   {{.Interval}}  
+   <a href="">delete</a>
+   {{if .Fired}}🔥 {{end}}
+   {{if .Disabled}}<a href="">enable</a> {{end}}
   </li>
   {{ end }}
 </ul>

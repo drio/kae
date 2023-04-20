@@ -21,7 +21,6 @@ type ListTokens []*Token
 type Token struct {
 	ID          string
 	Name        string
-	Value       bool
 	Interval    int
 	Disabled    bool
 	Fired       bool
@@ -70,7 +69,7 @@ func (m *SQLModel) CreateToken(name string, interval int) (string, error) {
 // GetLists fetches all the tokens  ordered with the most recent first.
 func (m *SQLModel) GetTokens() (ListTokens, error) {
 	rows, err := m.db.Query(`
-		SELECT id, name, interval, time_created
+		SELECT id, name, interval, disabled, fired, time_created
 		FROM tokens
 		ORDER BY time_created DESC
 		`)
@@ -82,7 +81,7 @@ func (m *SQLModel) GetTokens() (ListTokens, error) {
 	var listTokens ListTokens
 	for rows.Next() {
 		var t Token
-		err = rows.Scan(&t.ID, &t.Name, &t.Interval, &t.TimeCreated)
+		err = rows.Scan(&t.ID, &t.Name, &t.Interval, &t.Disabled, &t.Fired, &t.TimeCreated)
 		if err != nil {
 			return nil, err
 		}
