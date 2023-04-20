@@ -15,7 +15,7 @@ var homeTmpl = `<!DOCTYPE html>
 
   {{.Name}}
 
-<form method="POST" enctype="application/x-www-form-urlencoded">
+<form method="POST" action="/newtoken" enctype="application/x-www-form-urlencoded">
  <input type="text" name="name" placeholder="name" autofocus>
  <input type="text" name="interval" placeholder="interval (secs)">
  <button>New Token</button>

@@ -2,6 +2,8 @@ package main
 
 import (
 	"net/http"
+	"strconv"
+	"strings"
 	"text/template"
 	"time"
 
@@ -38,19 +40,46 @@ func NewServer(
 		mux:    r,
 	}
 
-	s.mux.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		s.home(w, r)
-	})
-
 	s.addRoutes()
 	s.addTemplates()
 	return s, nil
 }
 
 func (s *Server) addRoutes() {
-	s.mux.Get("/foo", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("foo"))
+	s.mux.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		s.home(w, r)
 	})
+
+	s.mux.Post("/newtoken", s.createToken)
+}
+
+func (s *Server) createToken(w http.ResponseWriter, r *http.Request) {
+	name := strings.TrimSpace(r.FormValue("name"))
+	if name == "" {
+		//just reload home page
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+
+	interval := strings.TrimSpace(r.FormValue("interval"))
+	if interval == "" {
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+
+	intInterval, err := strconv.Atoi(interval)
+	if err != nil {
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+
+	_, err = s.model.CreateToken(name, intInterval)
+	if err != nil {
+		s.internalError(w, "creating new token", err)
+		return
+	}
+
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func (s *Server) addTemplates() {

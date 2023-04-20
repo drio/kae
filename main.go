@@ -12,7 +12,7 @@ import (
 func main() {
 	// Config defaults
 	port := 3500
-	dbPath := "lsnitch.sqlite"
+	dbPath := "keep-an-eye.sqlite"
 
 	db, err := sql.Open("sqlite", dbPath)
 	exitOnError(err)
