@@ -1,0 +1,8 @@
+node_modules
+*.vim
+.env*
+*.sqlite
+.env*
+node_modules
+*.vim
+.env*
