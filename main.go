@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -14,7 +15,7 @@ func main() {
 	port := 3500
 	dbPath := "keep-an-eye.sqlite"
 
-	db, err := sql.Open("sqlite", dbPath)
+	db, err := sql.Open("sqlite", fmt.Sprintf("file:%s?_foreign_keys=on", dbPath))
 	exitOnError(err)
 	model, err := NewSQLModel(db)
 	exitOnError(err)

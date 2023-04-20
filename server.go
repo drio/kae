@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -17,7 +18,6 @@ type Server struct {
 
 	mux      *chi.Mux
 	homeTmpl *template.Template
-	//listTmpl *template.Template
 }
 
 type Logger interface {
@@ -47,6 +47,7 @@ func (s *Server) addRoutes() {
 	})
 
 	s.mux.Post("/newtoken", s.createToken)
+	s.mux.Get("/hb/{token}", s.hbToken)
 }
 
 func (s *Server) createToken(w http.ResponseWriter, r *http.Request) {
@@ -76,6 +77,34 @@ func (s *Server) createToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/", http.StatusFound)
+}
+
+func (s *Server) hbToken(w http.ResponseWriter, r *http.Request) {
+	token := chi.URLParam(r, "token")
+	if token == "" {
+		s.badRequestError(w, "token not provided", nil)
+		return
+	}
+
+	id, err := s.model.GetIdFromToken(token)
+	if err != nil {
+		s.internalError(w, "checking for token", err)
+		return
+	}
+
+	if id == 0 {
+		w.Write([]byte(fmt.Sprintf("ok t=%s (nd)", token)))
+		return
+	}
+
+	err = s.model.InsertHeartBeat(id)
+	if err != nil {
+		s.internalError(w, "heartbeat", err)
+		return
+	}
+
+	// respond to the client
+	w.Write([]byte(fmt.Sprintf("ok t=%s", token)))
 }
 
 func (s *Server) addTemplates() {
@@ -117,4 +146,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (s *Server) internalError(w http.ResponseWriter, msg string, err error) {
 	s.logger.Printf("error %s: %v", msg, err)
 	http.Error(w, "error "+msg, http.StatusInternalServerError)
+}
+
+func (s *Server) badRequestError(w http.ResponseWriter, msg string, err error) {
+	http.Error(w, "error "+msg, http.StatusBadRequest)
 }

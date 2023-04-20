@@ -14,12 +14,15 @@ type SQLModel struct {
 type Model interface {
 	CreateToken(string, int) (string, error)
 	GetTokens() (ListTokens, error)
+	GetIdFromToken(string) (int, error)
+	InsertHeartBeat(int) error
 }
 
 type ListTokens []*Token
 
 type Token struct {
 	ID          string
+	Token       string
 	Name        string
 	Interval    int
 	Disabled    bool
@@ -32,9 +35,11 @@ func NewSQLModel(db *sql.DB) (*SQLModel, error) {
 	model := &SQLModel{db, rnd}
 	_, err := model.db.Exec(`
 		CREATE TABLE IF NOT EXISTS tokens (
-			id VARCHAR(20) NOT NULL PRIMARY KEY,
+			id INTEGER NOT NULL PRIMARY KEY,
 			name VARCHAR(255) NOT NULL,
+			token VARCHAR(20) NOT NULL,
       interval INTEGER,
+
       -- to disable the token temporarely
       disabled BOOLEAN NOT NULL DEFAULT FALSE,
       -- to indicate a token is in a fired state; will go back to false once we get a valid ping again
@@ -47,8 +52,7 @@ func NewSQLModel(db *sql.DB) (*SQLModel, error) {
 		CREATE TABLE IF NOT EXISTS pings (
 			id INTEGER NOT NULL PRIMARY KEY,
 			token_id INTEGER NOT NULL REFERENCES tokens(id),
-			time_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	    time_deleted TIMESTAMP
+			last_heartbeat TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 		);
 		
 		CREATE INDEX IF NOT EXISTS tokens_list_id ON pings(token_id);
@@ -58,18 +62,18 @@ func NewSQLModel(db *sql.DB) (*SQLModel, error) {
 
 // Create a token and return the id which identifies the token uniquely
 func (m *SQLModel) CreateToken(name string, interval int) (string, error) {
-	id := m.makeTokenID(20)
+	token := m.makeTokenID(20)
 	// Generate time here because SQLite's CURRENT_TIMESTAMP only returns seconds.
 	timeCreated := time.Now().In(time.UTC).Format(time.RFC3339Nano)
-	_, err := m.db.Exec("INSERT INTO tokens (id, name, interval, time_created) VALUES (?, ?, ?, ?)",
-		id, name, interval, timeCreated)
-	return id, err
+	_, err := m.db.Exec("INSERT INTO tokens (token, name, interval, time_created) VALUES (?, ?, ?, ?)",
+		token, name, interval, timeCreated)
+	return token, err
 }
 
 // GetLists fetches all the tokens  ordered with the most recent first.
 func (m *SQLModel) GetTokens() (ListTokens, error) {
 	rows, err := m.db.Query(`
-		SELECT id, name, interval, disabled, fired, time_created
+		SELECT id, token, name, interval, disabled, fired, time_created
 		FROM tokens
 		ORDER BY time_created DESC
 		`)
@@ -81,13 +85,36 @@ func (m *SQLModel) GetTokens() (ListTokens, error) {
 	var listTokens ListTokens
 	for rows.Next() {
 		var t Token
-		err = rows.Scan(&t.ID, &t.Name, &t.Interval, &t.Disabled, &t.Fired, &t.TimeCreated)
+		err = rows.Scan(&t.ID, &t.Token, &t.Name, &t.Interval, &t.Disabled, &t.Fired, &t.TimeCreated)
 		if err != nil {
 			return nil, err
 		}
 		listTokens = append(listTokens, &t)
 	}
 	return listTokens, rows.Err()
+}
+
+func (m *SQLModel) InsertHeartBeat(id int) error {
+	_, err := m.db.Exec("INSERT INTO pings (token_id) VALUES (?)", id)
+	return err
+}
+
+func (m *SQLModel) GetIdFromToken(token string) (int, error) {
+	rows, err := m.db.Query("select id from tokens WHERE token = ?", token)
+	if err != nil {
+		return 0, err
+	}
+	defer rows.Close()
+
+	var id int
+	for rows.Next() {
+		err = rows.Scan(&id)
+		if err != nil {
+			return 0, err
+		}
+	}
+
+	return id, nil
 }
 
 var listIDChars = "bcdfghjklmnpqrstvwxyz"
