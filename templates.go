@@ -4,10 +4,10 @@ var homeTmpl = `<!DOCTYPE html>
 <html>
  <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Littlel Snitch (home)</title>
+  <title>Keep an eye (home)</title>
  </head>
  <body>
-  <h1>Little Snitch</h1>
+  <h1>Keep an Eye</h1>
 
 {{ if .SayHi }}
   <p>I have to say hi</p>
