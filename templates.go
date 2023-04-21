@@ -6,10 +6,17 @@ var homeTmpl = `<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Keep an eye (home)</title>
   <link rel="icon" type="image/x-icon" href="/assets/favicon-32x32.png">
+
   <style>
   body {
-    font-size: 1.1rem;
+    font-size: 1rem;
     padding: 2rem;
+    background-color: rgb(246 244 242/0.7);
+    font-family: Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;
+  }
+  h1 {
+    padding: .1rem 0 .1rem 0;
+    margin: .1rem 0 .1rem 0;
   }
   a {
     text-decoration: none;
@@ -17,7 +24,6 @@ var homeTmpl = `<!DOCTYPE html>
   }
   .danger {
     color: red;
-    font-weight: 800;
   }
 
   form > input {
@@ -34,7 +40,8 @@ var homeTmpl = `<!DOCTYPE html>
   }
 
   li {
-    padding-bottom: 1rem;
+    margin: 0 0 1rem 0;
+    padding: 0 0 .5rem 0;
   }
   </style>
 
