@@ -5,6 +5,7 @@ var homeTmpl = `<!DOCTYPE html>
  <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Keep an eye (home)</title>
+  <link rel="icon" type="image/x-icon" href="/assets/favicon-32x32.png">
  </head>
 <body style="padding: 1rem">
 
