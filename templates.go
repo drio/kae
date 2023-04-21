@@ -57,10 +57,10 @@ var homeTmpl = `<!DOCTYPE html>
   <form method="POST" action="/newtoken" enctype="application/x-www-form-urlencoded">
    <input type="text" name="name" placeholder="name" autofocus> <br/>
    <input type="text" name="interval" placeholder="interval (secs)"> <br/>
+   <input type="text" name="description" placeholder="description" size=70> <br/>
    <button>New Token</button>
   </form>
 
-  <h3>List of tokens</h3>
   <ul>
   {{ range .Tokens }}
   <li style="{{if .Disabled}} color: silver{{end}}">
@@ -74,6 +74,9 @@ var homeTmpl = `<!DOCTYPE html>
 
    ({{.Interval}}s)
 
+
+   <br/>
+   {{.Description}}
 
    <br/>
    <a href="/delete/{{.ID}}" class="danger">delete</a> |

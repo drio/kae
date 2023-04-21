@@ -12,10 +12,10 @@ A simple tool for keeping an eye on your proceses
 - [x] background job to every minute check of heart beats
 - [x] wire up option for disable token
 - [x] wire up remove token
+- [x] add description for token
 - [ ] add tests
 - [ ] add basic auth for certain routes
 - [ ] write blog post
-- [ ] add description for token
 - [ ] wire input arguments
 - [ ] production deployment
 - [ ] backup db

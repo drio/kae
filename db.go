@@ -12,7 +12,7 @@ type SQLModel struct {
 }
 
 type Model interface {
-	CreateToken(string, int) (string, error)
+	CreateToken(string, string, int) (string, error)
 	GetTokens() (ListTokens, error)
 	GetIdFromToken(string) (int, error)
 	InsertHeartBeat(int) error
@@ -28,6 +28,7 @@ type Token struct {
 	ID          int
 	Token       string
 	Name        string
+	Description string
 	Interval    int
 	Disabled    bool
 	Fired       bool
@@ -43,6 +44,7 @@ func NewSQLModel(db *sql.DB) (*SQLModel, error) {
 			name VARCHAR(255) NOT NULL,
 			token VARCHAR(20) NOT NULL,
       interval INTEGER,
+			description VARCHAR(1000) NOT NULL,
 
       -- to disable the token temporarely
       disabled BOOLEAN NOT NULL DEFAULT TRUE,
@@ -65,19 +67,21 @@ func NewSQLModel(db *sql.DB) (*SQLModel, error) {
 }
 
 // Create a token and return the id which identifies the token uniquely
-func (m *SQLModel) CreateToken(name string, interval int) (string, error) {
+func (m *SQLModel) CreateToken(name, description string, interval int) (string, error) {
 	token := m.makeTokenID(20)
 	// Generate time here because SQLite's CURRENT_TIMESTAMP only returns seconds.
 	timeCreated := time.Now().In(time.UTC).Format(time.RFC3339Nano)
-	_, err := m.db.Exec("INSERT INTO tokens (token, name, interval, time_created) VALUES (?, ?, ?, ?)",
-		token, name, interval, timeCreated)
+	_, err := m.db.Exec(`INSERT INTO tokens 
+    (token, name, interval, time_created, description) 
+    VALUES (?, ?, ?, ?, ?)`,
+		token, name, interval, timeCreated, description)
 	return token, err
 }
 
 // GetLists fetches all the tokens  ordered with the most recent first.
 func (m *SQLModel) GetTokens() (ListTokens, error) {
 	rows, err := m.db.Query(`
-		SELECT id, token, name, interval, disabled, fired, time_created
+		SELECT id, token, name, interval, disabled, fired, time_created, description
 		FROM tokens
     WHERE time_deleted is NULL
 		ORDER BY time_created DESC
@@ -90,7 +94,7 @@ func (m *SQLModel) GetTokens() (ListTokens, error) {
 	var listTokens ListTokens
 	for rows.Next() {
 		var t Token
-		err = rows.Scan(&t.ID, &t.Token, &t.Name, &t.Interval, &t.Disabled, &t.Fired, &t.TimeCreated)
+		err = rows.Scan(&t.ID, &t.Token, &t.Name, &t.Interval, &t.Disabled, &t.Fired, &t.TimeCreated, &t.Description)
 		if err != nil {
 			return nil, err
 		}

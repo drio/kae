@@ -111,7 +111,12 @@ func (s *Server) updateDisable(w http.ResponseWriter, r *http.Request) {
 func (s *Server) createToken(w http.ResponseWriter, r *http.Request) {
 	name := strings.TrimSpace(r.FormValue("name"))
 	if name == "" {
-		//just reload home page
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+
+	desc := r.FormValue("description")
+	if desc == "" {
 		http.Redirect(w, r, "/", http.StatusFound)
 		return
 	}
@@ -128,7 +133,7 @@ func (s *Server) createToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = s.model.CreateToken(name, intInterval)
+	_, err = s.model.CreateToken(name, desc, intInterval)
 	if err != nil {
 		s.internalError(w, "creating new token", err)
 		return
