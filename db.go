@@ -11,17 +11,6 @@ type SQLModel struct {
 	rnd *rand.Rand
 }
 
-type Model interface {
-	CreateToken(string, string, int) (string, error)
-	GetTokens() (ListTokens, error)
-	GetIdFromToken(string) (int, error)
-	InsertHeartBeat(int) error
-	LastHeartBeat(int) (time.Time, error)
-	Fire(int, bool) error
-	Disable(int, bool) error
-	Remove(int) error
-}
-
 type ListTokens []*Token
 
 type Token struct {

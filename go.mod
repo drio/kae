@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/go-chi/chi v1.5.4
+	golang.org/x/net v0.0.0-20201021035429-f5854403a974
 	modernc.org/sqlite v1.21.2
 )
 
