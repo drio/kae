@@ -26,6 +26,17 @@ type Logger interface {
 	Printf(format string, v ...interface{})
 }
 
+type Model interface {
+	CreateToken(string, string, int) (string, error)
+	GetTokens() (ListTokens, error)
+	GetIdFromToken(string) (int, error)
+	InsertHeartBeat(int) error
+	LastHeartBeat(int) (time.Time, error)
+	Fire(int, bool) error
+	Disable(int, bool) error
+	Remove(int) error
+}
+
 func NewServer(
 	model Model,
 	logger Logger,
