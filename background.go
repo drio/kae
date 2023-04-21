@@ -13,6 +13,10 @@ func (s *Server) runBackgroundJob(sleepSecs time.Duration) {
 		}
 
 		for _, t := range listTokens {
+			if t.Disabled {
+				continue
+			}
+
 			lastHB, err := s.model.LastHeartBeat(t.ID)
 			if err != nil {
 				s.logger.Printf("runBackgroundJob: error getting last heartbeat: %s", err)
