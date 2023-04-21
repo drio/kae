@@ -25,7 +25,7 @@ var homeTmpl = `<!DOCTYPE html>
   <ul style="list-style: none; padding-left: 1rem">
   {{ range .Tokens }}
   <li style="margin: 0.5em 0; {{if .Disabled}} color: silver{{end}}">
-   {{if .Fired}}🔥 {{end}}
+   {{if .Fired}}🔥{{else}}🟢{{end}}
    <span style="font-weight: 800">{{ .Name }}</span>
    <span style="color: silver">{{ .Token }}</span>
    {{.Interval}}s

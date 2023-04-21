@@ -22,6 +22,9 @@ func main() {
 	server, err := NewServer(model, log.Default())
 	exitOnError(err)
 
+	log.Printf("starting background job")
+	go server.runBackgroundJob(5)
+
 	log.Printf("listening on http://localhost:%d", port)
 	http.ListenAndServe("127.0.0.1:3500", server)
 	err = http.ListenAndServe(":"+strconv.Itoa(port), server)

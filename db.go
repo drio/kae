@@ -16,12 +16,14 @@ type Model interface {
 	GetTokens() (ListTokens, error)
 	GetIdFromToken(string) (int, error)
 	InsertHeartBeat(int) error
+	LastHeartBeat(int) (time.Time, error)
+	Fire(int, bool) error
 }
 
 type ListTokens []*Token
 
 type Token struct {
-	ID          string
+	ID          int
 	Token       string
 	Name        string
 	Interval    int
@@ -92,6 +94,37 @@ func (m *SQLModel) GetTokens() (ListTokens, error) {
 		listTokens = append(listTokens, &t)
 	}
 	return listTokens, rows.Err()
+}
+
+// Number of seconds since last heartbeat
+func (m *SQLModel) LastHeartBeat(tokenId int) (time.Time, error) {
+	rows, err := m.db.Query(`
+    SELECT p.last_heartbeat
+    FROM tokens as t
+    JOIN pings as p
+      ON t.id = p.token_id
+    WHERE t.id = ?
+    ORDER BY last_heartbeat
+    DESC limit 1
+    `, tokenId)
+	if err != nil {
+		return time.Time{}, err
+	}
+	defer rows.Close()
+
+	var lastHB time.Time
+	for rows.Next() {
+		err = rows.Scan(&lastHB)
+		if err != nil {
+			return time.Time{}, err
+		}
+	}
+	return lastHB, nil
+}
+
+func (m *SQLModel) Fire(id int, b bool) error {
+	_, err := m.db.Exec("UPDATE token SET fired = ? WHERE id = ?", b, id)
+	return err
 }
 
 func (m *SQLModel) InsertHeartBeat(id int) error {
