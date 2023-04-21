@@ -44,7 +44,7 @@ func NewSQLModel(db *sql.DB) (*SQLModel, error) {
       interval INTEGER,
 
       -- to disable the token temporarely
-      disabled BOOLEAN NOT NULL DEFAULT FALSE,
+      disabled BOOLEAN NOT NULL DEFAULT TRUE,
       -- to indicate a token is in a fired state; will go back to false once we get a valid ping again
       fired BOOLEAN NOT NULL DEFAULT FALSE,
 
