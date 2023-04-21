@@ -43,6 +43,25 @@ var homeTmpl = `<!DOCTYPE html>
     margin: 0 0 1rem 0;
     padding: 0 0 .5rem 0;
   }
+
+  .tokens-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 1rem 0 0 0;
+  }
+
+  .entry {
+    display: flex;
+    flex-direction: column;
+    width: 200px;
+    margin: 0.5rem;
+    padding: 0.4rem;
+    min-height: 100px;
+    border: solid 1px silver;
+    border-radius: 5px;
+  }
+
   </style>
 
  </head>
@@ -61,33 +80,32 @@ var homeTmpl = `<!DOCTYPE html>
    <button>New Token</button>
   </form>
 
-  <ul>
+  <div class="tokens-container">
   {{ range .Tokens }}
-  <li style="{{if .Disabled}} color: silver{{end}}">
+  <div class="entry" style="{{if .Disabled}} color: silver{{end}}">
+    <div> 
+      {{if not .Disabled}}
+        {{if .Fired}}🔥{{else}}🟢{{end}} 
+      {{end}}
+      <span style="font-weight: 800">{{ .Name }}</span>
+    </div>
+   <div style="color: silver">{{ .Token }}</div>
 
-   {{if not .Disabled}}
-    {{if .Fired}}🔥{{else}}🟢{{end}}
-   {{end}}
+   <div>({{.Interval}}s)</div>
 
-   <span style="font-weight: 800">{{ .Name }}</span>
-   <span style="color: silver">{{ .Token }}</span>
+   <div>{{.Description}}</div>
 
-   ({{.Interval}}s)
-
-
-   <br/>
-   {{.Description}}
-
-   <br/>
-   <a href="/delete/{{.ID}}" class="danger">delete</a> |
-   {{if .Disabled}}
+   <div>
+    <a href="/delete/{{.ID}}" class="danger">delete</a> |
+    {{if .Disabled}}
     <a href="/enable/{{.ID}}">enable</a> 
-  {{else}}
+    {{else}}
     <a href="/disable/{{.ID}}">disable</a>
-  {{end}}
-  </li>
+    {{end}}
+    </div>
+  </div>
   {{ end }}
-</ul>
+</div>
 
  </body>
 </html>
