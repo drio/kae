@@ -18,6 +18,7 @@ type Model interface {
 	InsertHeartBeat(int) error
 	LastHeartBeat(int) (time.Time, error)
 	Fire(int, bool) error
+	Disable(int, bool) error
 }
 
 type ListTokens []*Token
@@ -124,6 +125,11 @@ func (m *SQLModel) LastHeartBeat(tokenId int) (time.Time, error) {
 
 func (m *SQLModel) Fire(id int, b bool) error {
 	_, err := m.db.Exec("UPDATE tokens SET fired = ? WHERE id = ?", b, id)
+	return err
+}
+
+func (m *SQLModel) Disable(id int, b bool) error {
+	_, err := m.db.Exec("UPDATE tokens SET disabled = ? WHERE id = ?", b, id)
 	return err
 }
 

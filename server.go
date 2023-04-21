@@ -54,6 +54,36 @@ func (s *Server) addRoutes() {
 
 	s.mux.Post("/newtoken", s.createToken)
 	s.mux.Get("/hb/{token}", s.hbToken)
+	s.mux.Get("/{action:enable|disable}/{id}", s.updateDisable)
+}
+
+func (s *Server) updateDisable(w http.ResponseWriter, r *http.Request) {
+	action := chi.URLParam(r, "action")
+
+	id := chi.URLParam(r, "id")
+	if id == "" {
+		s.badRequestError(w, "token id not provided", nil)
+		return
+	}
+
+	intID, err := strconv.Atoi(id)
+	if err != nil {
+		s.internalError(w, "converting token id to int", err)
+		return
+	}
+
+	if action == "enable" {
+		err = s.model.Disable(intID, false)
+	} else {
+		err = s.model.Disable(intID, true)
+	}
+	if err != nil {
+		s.internalError(w, "disabling token", err)
+		return
+	}
+
+	http.Redirect(w, r, "/", http.StatusFound)
+	return
 }
 
 func (s *Server) createToken(w http.ResponseWriter, r *http.Request) {
