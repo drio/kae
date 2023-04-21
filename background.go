@@ -44,7 +44,7 @@ func (s *Server) runBackgroundJob(sleepSecs time.Duration) {
 			}
 		}
 
-		s.logger.Printf("runBackgroundJob: Sleeping for %d secs", sleepSecs)
+		s.logger.Printf("runBackgrondJob: Sleeping for %d secs", sleepSecs)
 		time.Sleep(sleepSecs * time.Second)
 	}
 }

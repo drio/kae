@@ -23,7 +23,7 @@ func main() {
 	exitOnError(err)
 
 	log.Printf("starting background job")
-	go server.runBackgroundJob(5)
+	go server.runBackgroundJob(1)
 
 	log.Printf("listening on http://localhost:%d", port)
 	http.ListenAndServe("127.0.0.1:3500", server)

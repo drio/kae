@@ -123,7 +123,7 @@ func (m *SQLModel) LastHeartBeat(tokenId int) (time.Time, error) {
 }
 
 func (m *SQLModel) Fire(id int, b bool) error {
-	_, err := m.db.Exec("UPDATE token SET fired = ? WHERE id = ?", b, id)
+	_, err := m.db.Exec("UPDATE tokens SET fired = ? WHERE id = ?", b, id)
 	return err
 }
 
