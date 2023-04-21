@@ -57,7 +57,7 @@ var homeTmpl = `<!DOCTYPE html>
   <form method="POST" action="/newtoken" enctype="application/x-www-form-urlencoded">
    <input type="text" name="name" placeholder="name" autofocus> <br/>
    <input type="text" name="interval" placeholder="interval (secs)"> <br/>
-   <input type="text" name="description" placeholder="description" size=70> <br/>
+  <input type="text" name="description" placeholder="description" style="width: 100%; max-width: 400px"> <br/>
    <button>New Token</button>
   </form>
 

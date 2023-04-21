@@ -13,6 +13,8 @@ A simple tool for keeping an eye on your proceses
 - [x] wire up option for disable token
 - [x] wire up remove token
 - [x] add description for token
+- [ ] show number of tokens firing
+- [ ] reload page when there are status updates (websocket)
 - [ ] add tests
 - [ ] add basic auth for certain routes
 - [ ] write blog post
