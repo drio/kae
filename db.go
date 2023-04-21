@@ -19,6 +19,7 @@ type Model interface {
 	LastHeartBeat(int) (time.Time, error)
 	Fire(int, bool) error
 	Disable(int, bool) error
+	Remove(int) error
 }
 
 type ListTokens []*Token
@@ -78,6 +79,7 @@ func (m *SQLModel) GetTokens() (ListTokens, error) {
 	rows, err := m.db.Query(`
 		SELECT id, token, name, interval, disabled, fired, time_created
 		FROM tokens
+    WHERE time_deleted is NULL
 		ORDER BY time_created DESC
 		`)
 	if err != nil {
@@ -135,6 +137,15 @@ func (m *SQLModel) Disable(id int, b bool) error {
 
 func (m *SQLModel) InsertHeartBeat(id int) error {
 	_, err := m.db.Exec("INSERT INTO pings (token_id) VALUES (?)", id)
+	return err
+}
+
+func (m *SQLModel) Remove(id int) error {
+	_, err := m.db.Exec(`
+			UPDATE tokens
+			SET time_deleted = CURRENT_TIMESTAMP
+			WHERE id = ?
+		`, id)
 	return err
 }
 

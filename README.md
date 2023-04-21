@@ -11,7 +11,7 @@ A simple tool for keeping an eye on your proceses
 - [x] GET endpoint /hb/<token>: update token ping store the value
 - [x] background job to every minute check of heart beats
 - [x] wire up option for disable token
-- [ ] wire up remove token
+- [x] wire up remove token
 - [ ] add tests
 - [ ] add basic auth for certain routes
 - [ ] write blog post
