@@ -60,6 +60,10 @@ func NewServer(
 	return s, nil
 }
 
+func (s *Server) setMiddleware(m func(next http.Handler) http.Handler) {
+	s.authMiddleware = m
+}
+
 func (s *Server) addRoutes() {
 	s.mux.Get("/hb/{token}", s.hbToken)
 
