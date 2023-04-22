@@ -14,6 +14,7 @@ A simple tool for keeping an eye on your proceses
 - [x] wire up remove token
 - [x] add description for token
 - [ ] add tests
+- [ ] copy to the clipboard token: https://stackoverflow.com/questions/63600367/copy-text-to-clipboard-using-html-button
 - [ ] show number of tokens firing
 - [ ] reload page when there are status updates (websocket)
 - [ ] add basic auth for certain routes

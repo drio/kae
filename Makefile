@@ -20,6 +20,10 @@ single-run-test:
 coverage:
 	@go test -cover ./...
 
+coverage/html:
+	go test -v -cover -coverprofile=c.out
+	go tool cover -html=c.out
+
 .PHONY: check-vars
 check-vars:
 	echo u:$$ADMIN_USER p:$$ADMIN_PASS db:$$DB_FILE $$HOST
@@ -28,7 +32,7 @@ air:
 	air
 
 run:
-	go run *.go
+	go run .
 
 main-linux-amd64:
 	GOARCH=amd64 GOOS=linux go build -ldflags "-w" -o $@ *.go

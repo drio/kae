@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+	"time"
 
 	"golang.org/x/net/html"
 )
@@ -35,6 +36,87 @@ func TestServer(t *testing.T) {
 		ensureInt(t, len(forms), 1)
 		ensureString(t, forms[0].Action, "/newtoken")
 	}
+
+	// Create a token
+	{
+		form := url.Values{}
+		form.Set("name", "token one")
+		form.Set("interval", "1")
+		form.Set("description", "the first token")
+		recorder := serve(t, server, "POST", "/newtoken", form)
+
+		ensureCode(t, recorder, http.StatusFound)
+		location := recorder.Result().Header.Get("Location")
+		ensureString(t, location, "/")
+	}
+
+	// Create another token
+	{
+		time.Sleep(time.Millisecond) // wait at least 1ms to ensure time_created is newer
+		form := url.Values{}
+		form.Set("name", "token two")
+		form.Set("interval", "2")
+		form.Set("description", "the second token")
+		recorder := serve(t, server, "POST", "/newtoken", form)
+		ensureCode(t, recorder, http.StatusFound)
+		location := recorder.Result().Header.Get("Location")
+		ensureString(t, location, "/")
+	}
+
+	// Fetch homepage again (should have two tokens)
+	{
+		recorder := serve(t, server, "GET", "/", nil)
+
+		links := parseLinks(t, recorder.Body.String())
+		ensureInt(t, len(links), 4) // 2 tokens, each has a delete and enable
+		ensureString(t, links[0].Href, "/delete/2")
+		ensureString(t, links[0].Text, "delete")
+		ensureString(t, links[1].Href, "/enable/2")
+		ensureString(t, links[1].Text, "enable")
+		ensureString(t, links[2].Href, "/delete/1")
+		ensureString(t, links[2].Text, "delete")
+		ensureString(t, links[3].Href, "/enable/1")
+		ensureString(t, links[3].Text, "enable")
+	}
+
+	// Enable a token
+	{
+		recorder := serve(t, server, "GET", "/enable/2", nil)
+		location := recorder.Result().Header.Get("Location")
+		ensureString(t, location, "/")
+		ensureCode(t, recorder, http.StatusFound)
+	}
+
+	// Now check in the UI to make sure the second token can be disabled
+	{
+		recorder := serve(t, server, "GET", "/", nil)
+		links := parseLinks(t, recorder.Body.String())
+		ensureInt(t, len(links), 4)
+		ensureString(t, links[0].Href, "/delete/2")
+		ensureString(t, links[0].Text, "delete")
+		ensureString(t, links[1].Href, "/disable/2")
+		ensureString(t, links[1].Text, "disable")
+	}
+
+	// Delete a token
+	{
+		recorder := serve(t, server, "GET", "/delete/2", nil)
+		location := recorder.Result().Header.Get("Location")
+		ensureString(t, location, "/")
+		ensureCode(t, recorder, http.StatusFound)
+	}
+
+	// Check that we only have a token now
+	{
+		recorder := serve(t, server, "GET", "/", nil)
+		links := parseLinks(t, recorder.Body.String())
+		ensureInt(t, len(links), 2)
+		ensureString(t, links[0].Href, "/delete/1")
+		ensureString(t, links[0].Text, "delete")
+		ensureString(t, links[1].Href, "/enable/1")
+		ensureString(t, links[1].Text, "enable")
+	}
+
 }
 
 // getText recursively assembles the text nodes of n into a string.
@@ -65,6 +147,15 @@ func ensureInt(t *testing.T, got, want int) {
 	t.Helper()
 	if got != want {
 		t.Fatalf("got %d, want %d", got, want)
+	}
+}
+
+// ensureCode asserts that the HTTP status code is correct.
+func ensureCode(t *testing.T, recorder *httptest.ResponseRecorder, expected int) {
+	t.Helper()
+	if recorder.Code != expected {
+		t.Fatalf("got code %d, want %d, response body:\n%s",
+			recorder.Code, expected, recorder.Body.String())
 	}
 }
 
@@ -134,15 +225,6 @@ func parseForms(t *testing.T, htmlStr string) []Form {
 	return forms
 }
 
-// ensureCode asserts that the HTTP status code is correct.
-func ensureCode(t *testing.T, recorder *httptest.ResponseRecorder, expected int) {
-	t.Helper()
-	if recorder.Code != expected {
-		t.Fatalf("got code %d, want %d, response body:\n%s",
-			recorder.Code, expected, recorder.Body.String())
-	}
-}
-
 // serve records a single HTTP request and returns the response recorder.
 func serve(t *testing.T, server *Server, method, path string, form url.Values) *httptest.ResponseRecorder {
 	t.Helper()
@@ -160,4 +242,36 @@ func serve(t *testing.T, server *Server, method, path string, form url.Values) *
 	recorder := httptest.NewRecorder()
 	server.ServeHTTP(recorder, r)
 	return recorder
+}
+
+type Link struct {
+	Href string
+	Text string
+}
+
+// parseLinks parses the links in an HTML document and returns the list of links.
+func parseLinks(t *testing.T, htmlStr string) []Link {
+	t.Helper()
+	doc, err := html.Parse(strings.NewReader(htmlStr))
+	if err != nil {
+		t.Fatalf("parsing HTML: %v", err)
+	}
+
+	var links []Link
+	var traverse func(*html.Node)
+
+	traverse = func(n *html.Node) {
+		if n.Type == html.ElementNode && n.Data == "a" {
+			links = append(links, Link{
+				Href: getAttr(n, "href"),
+				Text: getText(n),
+			})
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			traverse(c)
+		}
+	}
+
+	traverse(doc)
+	return links
 }
