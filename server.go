@@ -63,8 +63,9 @@ func (s *Server) addRoutes() {
 		s.home(w, r)
 	})
 
-	s.mux.Post("/newtoken", s.createToken)
 	s.mux.Get("/hb/{token}", s.hbToken)
+
+	s.mux.Post("/newtoken", s.createToken)
 	s.mux.Get("/{action:enable|disable}/{id}", s.updateDisable)
 	s.mux.Get("/delete/{id}", s.remove)
 }

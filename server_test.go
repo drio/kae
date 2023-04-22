@@ -12,7 +12,6 @@ import (
 	"net/url"
 	"strings"
 	"testing"
-	"time"
 
 	"golang.org/x/net/html"
 )
@@ -55,7 +54,6 @@ func TestServer(t *testing.T) {
 
 	// Create another token
 	{
-		time.Sleep(time.Millisecond) // wait at least 1ms to ensure time_created is newer
 		form := url.Values{}
 		form.Set("name", "token two")
 		form.Set("interval", "2")
