@@ -4,10 +4,14 @@ import (
 	"time"
 )
 
+type bgJobOpts struct {
+	loop    bool
+	delayFn func()
+}
+
 // Loop over the tokens and check the last heartbeat. Set the fire accordingly
-// If sleepSecs is 0, do not loop, run once.
-// Otherwise, loop and sleep for sleepSecs.
-func (s *Server) runBackgroundJob(sleepSecs time.Duration) {
+// Otherwise, loop and run the sleep fun
+func (s *Server) runBackgroundJob(opts bgJobOpts) {
 	logic := func() {
 		listTokens, err := s.model.GetTokens()
 		if err != nil {
@@ -51,16 +55,15 @@ func (s *Server) runBackgroundJob(sleepSecs time.Duration) {
 			}
 		}
 
-		s.logger.Printf("runBackgrondJob: Sleeping for %d secs", sleepSecs)
-		time.Sleep(sleepSecs * time.Second)
+		opts.delayFn()
 	}
 
-	if sleepSecs == 0 {
-		logic()
+	if opts.loop {
+		for {
+			logic()
+		}
 		return
 	}
 
-	for {
-		logic()
-	}
+	logic()
 }
