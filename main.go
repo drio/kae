@@ -14,7 +14,7 @@ import (
 func main() {
 	// Config defaults
 	port := 3500
-	delay := time.Duration(5)
+	delaySecs := 5
 	dbPath := "keep-an-eye.sqlite"
 
 	db, err := sql.Open("sqlite", fmt.Sprintf("file:%s?_foreign_keys=on", dbPath))
@@ -25,7 +25,13 @@ func main() {
 	exitOnError(err)
 
 	log.Printf("starting background job")
-	go server.runBackgroundJob(delay)
+	go server.runBackgroundJob(bgJobOpts{
+		loop: true,
+		delayFn: func() {
+			server.logger.Printf("runBackgrondJob: Sleeping for %d secs", delaySecs)
+			time.Sleep(time.Duration(delaySecs) * time.Second)
+		},
+	})
 
 	log.Printf("listening on http://localhost:%d", port)
 	exitOnError(http.ListenAndServe("127.0.0.1:3500", server))

@@ -5,7 +5,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -142,21 +141,22 @@ func TestServer(t *testing.T) {
 	{
 		recorder := serve(t, server, "GET", "/", nil)
 		divs := parseGeneric(t, recorder.Body.String(), "span", "emoji")
-		fmt.Printf("%s\n", recorder.Body.String())
 		ensureInt(t, len(divs), 1)
 		ensureString(t, divs[0].Text, "🔥")
 	}
 
 	// Run the background job
 	{
-		server.runBackgroundJob(0)
+		server.runBackgroundJob(bgJobOpts{
+			loop:    false,
+			delayFn: func() {},
+		})
 	}
 
 	// The UI should tell us now that the token is not in fire state
 	{
 		recorder := serve(t, server, "GET", "/", nil)
 		divs := parseGeneric(t, recorder.Body.String(), "span", "emoji")
-		fmt.Printf("%s\n", recorder.Body.String())
 		ensureInt(t, len(divs), 1)
 		ensureString(t, divs[0].Text, "🟢")
 	}
