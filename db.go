@@ -38,7 +38,7 @@ func NewSQLModel(db *sql.DB) (*SQLModel, error) {
       -- to disable the token temporarely
       disabled BOOLEAN NOT NULL DEFAULT TRUE,
       -- to indicate a token is in a fired state; will go back to false once we get a valid ping again
-      fired BOOLEAN NOT NULL DEFAULT FALSE,
+      fired BOOLEAN NOT NULL DEFAULT TRUE,
 
 			time_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		  time_deleted TIMESTAMP

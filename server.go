@@ -167,7 +167,10 @@ func (s *Server) hbToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if id == 0 {
-		w.Write([]byte(fmt.Sprintf("ok t=%s (nd)", token)))
+		_, err = w.Write([]byte(fmt.Sprintf("ok t=%s (nd)", token)))
+		if err != nil {
+			s.internalError(w, "writing back to the user", err)
+		}
 		return
 	}
 
@@ -178,7 +181,11 @@ func (s *Server) hbToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// respond to the client
-	w.Write([]byte(fmt.Sprintf("ok t=%s", token)))
+	_, err = w.Write([]byte(fmt.Sprintf("ok t=%s)", token)))
+	if err != nil {
+		s.internalError(w, "writing back to the user", err)
+	}
+
 }
 
 func (s *Server) addTemplates() {

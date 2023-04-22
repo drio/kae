@@ -5,6 +5,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -26,6 +27,9 @@ func TestServer(t *testing.T) {
 	model, err := NewSQLModel(db)
 	exitOnError(err)
 	server, err := NewServer(model, log.Default())
+	if err != nil {
+		t.Fatalf("Error creating server")
+	}
 
 	// Fetch homepage
 	{
@@ -41,7 +45,7 @@ func TestServer(t *testing.T) {
 	{
 		form := url.Values{}
 		form.Set("name", "token one")
-		form.Set("interval", "1")
+		form.Set("interval", "5")
 		form.Set("description", "the first token")
 		recorder := serve(t, server, "POST", "/newtoken", form)
 
@@ -117,6 +121,45 @@ func TestServer(t *testing.T) {
 		ensureString(t, links[1].Text, "enable")
 	}
 
+	// Get the token value and send a heartbeat
+	{
+		recorder := serve(t, server, "GET", "/", nil)
+		divs := parseGeneric(t, recorder.Body.String(), "div", "token-value")
+		ensureInt(t, len(divs), 1)
+		_ = serve(t, server, "GET", "/hb/"+divs[0].Text, nil)
+	}
+
+	// Enable the token
+	{
+		recorder := serve(t, server, "GET", "/enable/1", nil)
+		location := recorder.Result().Header.Get("Location")
+		ensureString(t, location, "/")
+		ensureCode(t, recorder, http.StatusFound)
+	}
+
+	// The UI should tell us that the state of the token is fire because
+	// we sent a heartbeat but we didn't run the background job
+	{
+		recorder := serve(t, server, "GET", "/", nil)
+		divs := parseGeneric(t, recorder.Body.String(), "span", "emoji")
+		fmt.Printf("%s\n", recorder.Body.String())
+		ensureInt(t, len(divs), 1)
+		ensureString(t, divs[0].Text, "🔥")
+	}
+
+	// Run the background job
+	{
+		server.runBackgroundJob(0)
+	}
+
+	// The UI should tell us now that the token is not in fire state
+	{
+		recorder := serve(t, server, "GET", "/", nil)
+		divs := parseGeneric(t, recorder.Body.String(), "span", "emoji")
+		fmt.Printf("%s\n", recorder.Body.String())
+		ensureInt(t, len(divs), 1)
+		ensureString(t, divs[0].Text, "🟢")
+	}
 }
 
 // getText recursively assembles the text nodes of n into a string.
@@ -274,4 +317,39 @@ func parseLinks(t *testing.T, htmlStr string) []Link {
 
 	traverse(doc)
 	return links
+}
+
+type Div struct {
+	Class string
+	Text  string
+}
+
+// parseDivs parses the div in an HTML document and returns the list of divs.
+func parseGeneric(t *testing.T, htmlStr string, nodeType string, className string) []Div {
+	t.Helper()
+	doc, err := html.Parse(strings.NewReader(htmlStr))
+	if err != nil {
+		t.Fatalf("parsing HTML: %v", err)
+	}
+
+	var divs []Div
+	var traverse func(*html.Node)
+
+	traverse = func(n *html.Node) {
+		if n.Data == nodeType && len(n.Attr) > 0 {
+			for _, attr := range n.Attr {
+				if attr.Key == "class" && attr.Val == className {
+					divs = append(divs, Div{
+						Text: getText(n),
+					})
+				}
+			}
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			traverse(c)
+		}
+	}
+
+	traverse(doc)
+	return divs
 }

@@ -28,7 +28,7 @@ func main() {
 	go server.runBackgroundJob(delay)
 
 	log.Printf("listening on http://localhost:%d", port)
-	http.ListenAndServe("127.0.0.1:3500", server)
+	exitOnError(http.ListenAndServe("127.0.0.1:3500", server))
 	err = http.ListenAndServe(":"+strconv.Itoa(port), server)
 	exitOnError(err)
 }

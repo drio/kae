@@ -54,3 +54,15 @@ li {
   border: solid 1px silver;
   border-radius: 5px;
 }
+
+.token-value {
+  color: silver;
+}
+
+.emoji {
+  font-size: 1.5rem;
+}
+
+.token-name {
+  font-weight: 800;
+}

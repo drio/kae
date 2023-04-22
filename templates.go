@@ -28,11 +28,11 @@ var homeTmpl = `<!DOCTYPE html>
   <div class="entry" style="{{if .Disabled}} color: silver{{end}}">
     <div> 
       {{if not .Disabled}}
-        {{if .Fired}}🔥{{else}}🟢{{end}} 
+        <span class="emoji">{{if .Fired}}🔥{{else}}🟢{{end}}</span>
       {{end}}
-      <span style="font-weight: 800">{{ .Name }}</span>
+      <span class="token-name">{{ .Name }}</span>
     </div>
-   <div style="color: silver">{{ .Token }}</div>
+   <div class="token-value">{{ .Token }}</div>
 
    <div>({{.Interval}}s)</div>
 
