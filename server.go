@@ -181,7 +181,7 @@ func (s *Server) hbToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// respond to the client
-	_, err = w.Write([]byte(fmt.Sprintf("ok t=%s)", token)))
+	_, err = w.Write([]byte(fmt.Sprintf("ok t=%s", token)))
 	if err != nil {
 		s.internalError(w, "writing back to the user", err)
 	}
