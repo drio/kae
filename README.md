@@ -13,12 +13,12 @@ A simple tool for keeping an eye on your proceses
 - [x] wire up option for disable token
 - [x] wire up remove token
 - [x] add description for token
-- [ ] add tests
-- [ ] copy to the clipboard token: https://stackoverflow.com/questions/63600367/copy-text-to-clipboard-using-html-button
-- [ ] show number of tokens firing
-- [ ] reload page when there are status updates (websocket)
+- [x] add tests
 - [ ] add basic auth for certain routes
-- [ ] write blog post
 - [ ] wire input arguments
 - [ ] production deployment
 - [ ] backup db
+- [ ] show number of tokens firing
+- [ ] reload page when there are status updates (websocket)
+- [ ] write blog post
+- [ ] copy to the clipboard token: https://stackoverflow.com/questions/63600367/copy-text-to-clipboard-using-html-button
