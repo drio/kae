@@ -18,8 +18,9 @@ type Server struct {
 	model  Model
 	logger Logger
 
-	mux      *chi.Mux
-	homeTmpl *template.Template
+	mux            *chi.Mux
+	homeTmpl       *template.Template
+	authMiddleware func(next http.Handler) http.Handler
 }
 
 type Logger interface {
@@ -44,9 +45,10 @@ func NewServer(
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	s := &Server{
-		model:  model,
-		logger: logger,
-		mux:    r,
+		model:          model,
+		logger:         logger,
+		mux:            r,
+		authMiddleware: noAuthMiddleware,
 	}
 
 	workDir, _ := os.Getwd()
@@ -59,15 +61,14 @@ func NewServer(
 }
 
 func (s *Server) addRoutes() {
-	s.mux.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		s.home(w, r)
-	})
-
 	s.mux.Get("/hb/{token}", s.hbToken)
 
-	s.mux.Post("/newtoken", s.createToken)
-	s.mux.Get("/{action:enable|disable}/{id}", s.updateDisable)
-	s.mux.Get("/delete/{id}", s.remove)
+	// These have to be protected
+	m := s.authMiddleware
+	s.mux.Method("get", "/", m(http.HandlerFunc(s.home)))
+	s.mux.Method("post", "/newtoken", m(http.HandlerFunc(s.createToken)))
+	s.mux.Method("get", "/{action:enable|disable}/{id}", m(http.HandlerFunc(s.updateDisable)))
+	s.mux.Method("get", "/delete/{id}", m(http.HandlerFunc(s.remove)))
 }
 
 func (s *Server) remove(w http.ResponseWriter, r *http.Request) {
@@ -251,4 +252,10 @@ func (s *Server) internalError(w http.ResponseWriter, msg string, err error) {
 
 func (s *Server) badRequestError(w http.ResponseWriter, msg string, err error) {
 	http.Error(w, "error "+msg, http.StatusBadRequest)
+}
+
+func noAuthMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r)
+	})
 }
