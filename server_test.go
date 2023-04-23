@@ -24,7 +24,11 @@ func TestServer(t *testing.T) {
 	defer db.Close()
 	model, err := NewSQLModel(db)
 	exitOnError(err)
-	server, err := NewServer(model, log.Default())
+	server, err := NewServer(ServerOpts{
+		model:          model,
+		logger:         log.Default(),
+		authMiddleware: noAuthMiddleware,
+	})
 	if err != nil {
 		t.Fatalf("Error creating server")
 	}

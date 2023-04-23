@@ -14,6 +14,12 @@ import (
 	"github.com/go-chi/chi/middleware"
 )
 
+type ServerOpts struct {
+	model          Model
+	logger         Logger
+	authMiddleware func(next http.Handler) http.Handler
+}
+
 type Server struct {
 	model  Model
 	logger Logger
@@ -38,17 +44,14 @@ type Model interface {
 	Remove(int) error
 }
 
-func NewServer(
-	model Model,
-	logger Logger,
-) (*Server, error) {
+func NewServer(opts ServerOpts) (*Server, error) {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	s := &Server{
-		model:          model,
-		logger:         logger,
+		model:          opts.model,
+		logger:         opts.logger,
 		mux:            r,
-		authMiddleware: noAuthMiddleware,
+		authMiddleware: opts.authMiddleware,
 	}
 
 	workDir, _ := os.Getwd()
@@ -58,10 +61,6 @@ func NewServer(
 	s.addRoutes()
 	s.addTemplates()
 	return s, nil
-}
-
-func (s *Server) setMiddleware(m func(next http.Handler) http.Handler) {
-	s.authMiddleware = m
 }
 
 func (s *Server) addRoutes() {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -10,6 +11,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/go-chi/chi/middleware"
 	_ "modernc.org/sqlite"
 )
 
@@ -28,6 +30,8 @@ Options:
 Environment variables:
   PORT       HTTP port to listen on (default %d)
   KAE_DB     path to SQLite 3 database (default %q)
+  KAE_USER   basic auth username (default no basic auth)
+  KAE_PASS   basic auth password (default no basic auth)
 `, delaySecs, port, dbPath)
 	}
 	flag.Parse()
@@ -43,12 +47,33 @@ Environment variables:
 	if dbEnv, ok := os.LookupEnv("KAE_DB"); ok {
 		dbPath = dbEnv
 	}
+	var user, pass string
+	if userEnv, ok := os.LookupEnv("KAE_USER"); ok {
+		user = userEnv
+	}
+	if passEnv, ok := os.LookupEnv("KAE_PASS"); ok {
+		pass = passEnv
+	}
+	if user != "" && pass == "" {
+		exitOnError(errors.New("KAE_USER provided but missing KAE_PASS"))
+	}
+	if user == "" && pass != "" {
+		exitOnError(errors.New("KAE_PASS provided but missing KAE_USER"))
+	}
 
 	db, err := sql.Open("sqlite", fmt.Sprintf("file:%s?_foreign_keys=on", dbPath))
 	exitOnError(err)
 	model, err := NewSQLModel(db)
 	exitOnError(err)
-	server, err := NewServer(model, log.Default())
+	am := noAuthMiddleware
+	if user != "" && pass != "" {
+		am = middleware.BasicAuth("kae site", map[string]string{user: pass})
+	}
+	server, err := NewServer(ServerOpts{
+		model:          model,
+		logger:         log.Default(),
+		authMiddleware: am,
+	})
 	exitOnError(err)
 
 	log.Printf("starting background job")
