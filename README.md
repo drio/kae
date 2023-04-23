@@ -15,10 +15,10 @@ A simple tool for keeping an eye on your proceses
 - [x] add description for token
 - [x] add tests
 - [x] add basic auth for certain routes
-- [ ] wire input arguments
+- [x] wire input arguments
 - [ ] production deployment
 - [ ] backup db
+- [ ] write blog post
 - [ ] show number of tokens firing
 - [ ] reload page when there are status updates (websocket)
-- [ ] write blog post
 - [ ] copy to the clipboard token: https://stackoverflow.com/questions/63600367/copy-text-to-clipboard-using-html-button
