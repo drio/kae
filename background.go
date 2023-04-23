@@ -62,7 +62,6 @@ func (s *Server) runBackgroundJob(opts bgJobOpts) {
 		for {
 			logic()
 		}
-		return
 	}
 
 	logic()
