@@ -2,9 +2,11 @@ package main
 
 import (
 	"database/sql"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -16,6 +18,31 @@ func main() {
 	port := 3500
 	delaySecs := 5
 	dbPath := "keep-an-eye.sqlite"
+
+	flag.Usage = func() {
+		fmt.Fprintf(flag.CommandLine.Output(), `Usage: kae [options]
+
+Options:
+  -delaySecs  number of seconds between heartbeat updates (default %d)
+
+Environment variables:
+  PORT       HTTP port to listen on (default %d)
+  KAE_DB     path to SQLite 3 database (default %q)
+`, delaySecs, port, dbPath)
+	}
+	flag.Parse()
+
+	// Parse config from environment variables
+	var err error
+	if portEnv, ok := os.LookupEnv("PORT"); ok {
+		port, err = strconv.Atoi(portEnv)
+		if err != nil {
+			exitOnError(err)
+		}
+	}
+	if dbEnv, ok := os.LookupEnv("KAE_DB"); ok {
+		dbPath = dbEnv
+	}
 
 	db, err := sql.Open("sqlite", fmt.Sprintf("file:%s?_foreign_keys=on", dbPath))
 	exitOnError(err)
@@ -33,8 +60,9 @@ func main() {
 		},
 	})
 
+	log.Printf("config: port=%d db=%q delaySecs=%d", port, dbPath, delaySecs)
 	log.Printf("listening on http://localhost:%d", port)
-	exitOnError(http.ListenAndServe("127.0.0.1:3500", server))
+	exitOnError(http.ListenAndServe(":"+strconv.Itoa(port), server))
 	err = http.ListenAndServe(":"+strconv.Itoa(port), server)
 	exitOnError(err)
 }
