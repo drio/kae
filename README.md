@@ -14,7 +14,7 @@ A simple tool for keeping an eye on your proceses
 - [x] wire up remove token
 - [x] add description for token
 - [x] add tests
-- [ ] add basic auth for certain routes
+- [x] add basic auth for certain routes
 - [ ] wire input arguments
 - [ ] production deployment
 - [ ] backup db
