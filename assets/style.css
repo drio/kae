@@ -47,7 +47,7 @@ li {
 .entry {
   display: flex;
   flex-direction: column;
-  width: 200px;
+  width: 175px;
   margin: 0.5rem;
   padding: 0.4rem;
   min-height: 100px;
