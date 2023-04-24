@@ -18,7 +18,7 @@ import (
 func main() {
 	// Config defaults
 	port := 3500
-	delaySecs := 5
+	delaySecsDefault := 5
 	dbPath := "keep-an-eye.sqlite"
 
 	flag.Usage = func() {
@@ -32,8 +32,9 @@ Environment variables:
   KAE_DB     path to SQLite 3 database (default %q)
   KAE_USER   basic auth username (default no basic auth)
   KAE_PASS   basic auth password (default no basic auth)
-`, delaySecs, port, dbPath)
+`, delaySecsDefault, port, dbPath)
 	}
+	delaySecs := flag.Int("delaySecs", delaySecsDefault, fmt.Sprintf("default: %d", delaySecsDefault))
 	flag.Parse()
 
 	// Parse config from environment variables
@@ -80,13 +81,13 @@ Environment variables:
 	go server.runBackgroundJob(bgJobOpts{
 		loop: true,
 		delayFn: func() {
-			server.logger.Printf("runBackgrondJob: Sleeping for %d secs", delaySecs)
-			time.Sleep(time.Duration(delaySecs) * time.Second)
+			server.logger.Printf("runBackgrondJob: Sleeping for %d secs", *delaySecs)
+			time.Sleep(time.Duration(*delaySecs) * time.Second)
 		},
 	})
 
-	log.Printf("config: port=%d db=%q delaySecs=%d", port, dbPath, delaySecs)
-	log.Printf("listening on http://localhost:%d", port)
+	log.Printf("config: port=%d db=%q delaySecs=%d", port, dbPath, *delaySecs)
+	log.Printf("listening on http://:%d", port)
 	exitOnError(http.ListenAndServe(":"+strconv.Itoa(port), server))
 	err = http.ListenAndServe(":"+strconv.Itoa(port), server)
 	exitOnError(err)
