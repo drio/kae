@@ -27,7 +27,7 @@ var homeTmpl = `<!DOCTYPE html>
 
   <input type="checkbox" id="reload" value="on"/> Reload every 5 secs.
 
-  <div class="tokens-container">
+  <div class="grid">
   {{ range .Tokens }}
   <div class="entry" style="{{if .Disabled}} color: silver{{end}}">
     <div> 
