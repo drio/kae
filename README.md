@@ -4,7 +4,7 @@ A simple tool for keeping an eye on your processes.
 
 This is poor man version of [deadmansnitch](https://deadmanssnitch.com/).
 
-![](./ui.png)
+![](assets/kae.gif)
 
 ### What is the problem I was trying to solve?
 
