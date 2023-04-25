@@ -1,5 +1,4 @@
 body {
-  font-size: 1rem;
   padding: 2rem;
   background-color: rgb(246 244 242/0.7);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system,
@@ -7,38 +6,19 @@ body {
     sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol,
     Noto Color Emoji;
 }
+
 h1 {
   padding: 0.1rem 0 0.1rem 0;
   margin: 0.1rem 0 0.1rem 0;
 }
+
 a {
   text-decoration: none;
   color: steelblue;
 }
+
 .danger {
   color: red;
-}
-
-form {
-  padding-bottom: 0.5rem;
-}
-
-form > input {
-  margin-top: 0.5rem;
-}
-
-form > button {
-  margin-top: 0.5rem;
-}
-
-ul {
-  list-style: none;
-  padding: 0;
-}
-
-li {
-  margin: 0 0 1rem 0;
-  padding: 0 0 0.5rem 0;
 }
 
 .tokens-container {
@@ -51,7 +31,7 @@ li {
 .entry {
   display: flex;
   flex-direction: column;
-  width: 200px;
+  width: 250px;
   margin: 0.5rem;
   padding: 0.4rem;
   min-height: 100px;

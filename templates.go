@@ -6,6 +6,7 @@ var homeTmpl = `<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Keep an eye (home)</title>
   <link rel="icon" type="image/x-icon" href="/assets/favicon-32x32.png">
+  <link rel="stylesheet" href="/assets/pico.min.css">
   <link rel="stylesheet" href="/assets/style.css">
   <script src="assets/logic.js"></script>
   </head>
@@ -20,7 +21,7 @@ var homeTmpl = `<!DOCTYPE html>
   <form method="POST" action="/newtoken" enctype="application/x-www-form-urlencoded">
    <input type="text" name="name" placeholder="name" autofocus> <br/>
    <input type="text" name="interval" placeholder="interval (secs)"> <br/>
-   <input type="text" name="description" placeholder="description" style="width: 100%; max-width: 400px"> <br/>
+   <input type="text" name="description" placeholder="description"> <br/>
    <button>New Token</button>
   </form>
 
