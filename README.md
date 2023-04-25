@@ -1,6 +1,6 @@
 # keep an eye (kea)
 
-A simple tool for keeping an eye on your proceses
+A simple tool for keeping an eye on your processes.
 
 ## TODO
 
