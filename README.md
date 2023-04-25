@@ -1,8 +1,39 @@
-# keep an eye (kea)
+# keep an eye (kae)
 
 A simple tool for keeping an eye on your processes.
 
-## TODO
+This is poor man version of [deadmansnitch](https://deadmanssnitch.com/).
+
+![](./ui.png)
+
+### What is the problem I was trying to solve?
+
+I have quite a few processes that run periodically. I wanted to make sure those keep running and I want to
+see, in a single place how those processes are doing.
+
+You may be thinking, easy, use prometheus and alertmanager. That's an option but I think it has a higher operational
+cost compared with this solution.
+
+The idea is you create a token from the UI and select what is the expected heartbeat interval. The token will be
+fired if you don't get a periodic heartbeat within the limits of the interval defined.
+
+Let's say you have a process that backups your sqlite database to s3. And it is suppose to run every hour. You
+can use kae to keep an eye on it:
+
+1. create a token
+2. After the process runs successfully, make a request to (https://kae/hb/token) where token is the 20 character token
+   value.
+
+The keep an eye on things from the console.
+
+### Questions
+
+**Why don't you report when a token gets fired via, let's say, email?**
+
+I could but I don't want to be alerted, I just go regularly to the UI and check the status of things.
+Maybe I will add that feature in the future.
+
+### TODO
 
 - [x] table token
 - [x] table ping
@@ -23,9 +54,10 @@ A simple tool for keeping an eye on your processes.
 - [ ] show number of tokens firing
 - [ ] copy to the clipboard token: https://stackoverflow.com/questions/63600367/copy-text-to-clipboard-using-html-button
 
-## Preparing the tool for production (author notes)
+## Preparing the tool for production
 
 Let's assume you have an ubuntu box where you want to deploy this software.
+
 The process should be:
 
 1. Create a dedicated user/pass: `sudo useradd -rs /bin/false kae`
@@ -53,9 +85,9 @@ https://kae.yourdomain.net {
 ```
 
 Notice that requires you having the proper dns setup (wildcard setup). Caddy will setup a new cert
-for you on demand.
+for you on demand. Thank you Caddy.
 
-11. Add cronjob to run db backup script to s3
+11. Add a cronjob to run db backup script to s3
 
     - create s3 bucket
     - create kae new token
@@ -64,4 +96,4 @@ for you on demand.
     - add cronjob to run every hour: `10 * * * * /home/ubuntu/kae/scripts/backup-kae-db.sh`
     - Make a heartbeat request to restore the green in the token. Remember the background job runs every x seconds.
 
-12. Finally, test `make deploy` to make sure you can deploy new releases easily.
+12. Finally, test `make deploy` to make sure you can deploy new releases easily. Enjoy!
