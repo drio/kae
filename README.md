@@ -18,9 +18,9 @@ A simple tool for keeping an eye on your proceses
 - [x] wire input arguments
 - [x] production deployment
 - [x] backup db
+- [x] reload page when there are status updates
 - [ ] write blog post
 - [ ] show number of tokens firing
-- [x] reload page when there are status updates
 - [ ] copy to the clipboard token: https://stackoverflow.com/questions/63600367/copy-text-to-clipboard-using-html-button
 
 ## Preparing the tool for production (author notes)
