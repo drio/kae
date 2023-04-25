@@ -2,7 +2,7 @@
 
 A simple tool for keeping an eye on your processes.
 
-This is poor man version of [deadmansnitch](https://deadmanssnitch.com/).
+This is a poor man version of [deadmansnitch](https://deadmanssnitch.com/).
 
 ![](assets/kae.gif)
 
