@@ -7,6 +7,7 @@ var homeTmpl = `<!DOCTYPE html>
   <title>Keep an eye (home)</title>
   <link rel="icon" type="image/x-icon" href="/assets/favicon-32x32.png">
   <link rel="stylesheet" href="/assets/style.css">
+  <script src="assets/logic.js"></script>
   </head>
 <body style="padding: 1rem">
 
@@ -22,6 +23,8 @@ var homeTmpl = `<!DOCTYPE html>
    <input type="text" name="description" placeholder="description" style="width: 100%; max-width: 400px"> <br/>
    <button>New Token</button>
   </form>
+
+  <input type="checkbox" id="reload" value="on"/> Reload every 5 secs.
 
   <div class="tokens-container">
   {{ range .Tokens }}

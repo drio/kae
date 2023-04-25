@@ -16,11 +16,11 @@ A simple tool for keeping an eye on your proceses
 - [x] add tests
 - [x] add basic auth for certain routes
 - [x] wire input arguments
-- [ ] production deployment
-- [ ] backup db
+- [x] production deployment
+- [x] backup db
 - [ ] write blog post
 - [ ] show number of tokens firing
-- [ ] reload page when there are status updates (websocket)
+- [x] reload page when there are status updates
 - [ ] copy to the clipboard token: https://stackoverflow.com/questions/63600367/copy-text-to-clipboard-using-html-button
 
 ## Preparing the tool for production (author notes)
